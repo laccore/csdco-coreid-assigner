@@ -62,9 +62,13 @@ if 'Section Depth' in msclData[0]:
 	if debug:
 		print('Section depth found in column {0}'.format(msclData[0].index('Section Depth')+1))
 	sectionDepth = msclData[0].index('Section Depth')
+elif 'SECT DEPTH' in msclData[0]:
+	if debug:
+		print('Section depth found in column {0}'.format(msclData[0].index('SECT DEPTH')+1))
+	sectionDepth = msclData[0].index('SECT DEPTH')
 else:
 	canRun = False
-	print('ERROR: Cannot find section depth column. Please change section number column name to \'Section Depth\'.')
+	print('ERROR: Cannot find section depth column. Please change section number column name to \'SECT DEPTH\' or \'Section Depth\'.')
 
 # Build the section list
 if len(sys.argv) > 2:
