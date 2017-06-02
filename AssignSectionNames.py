@@ -156,4 +156,4 @@ if canRun:
 	stop = timeit.default_timer()
 
 	print('Completed in',round((stop - start),2),'seconds.')
-	print(len(matchedData)-startRow,'rows had section names assigned.',('There were no unmatched rows.' if len(unmatchedData) == startRow else 'There were ' + str(len(unmatchedData)) + ' unmatched rows.'))
+	print(len(matchedData)-startRow,'rows had section names assigned.',('There were no unmatched rows.' if len(unmatchedData) == startRow else 'There were ' + str(len(unmatchedData)-2) + ' unmatched rows.'))
