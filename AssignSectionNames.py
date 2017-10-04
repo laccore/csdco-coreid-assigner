@@ -26,7 +26,7 @@ canRun = True
 
 # Build the various file names
 rawFileName = sys.argv[1]
-matchedFileName = rawFileName[:len(rawFileName)-4] + '_sectionNames.csv'
+matchedFileName = rawFileName[:len(rawFileName)-12] + '.csv' if ('unnamed' in rawFileName) else rawFileName[:len(rawFileName)-4] + '_sectionNames.csv'
 unmatchedFileName = rawFileName[:len(rawFileName)-4] + '_UNMATCHED.csv'
 
 msclData = []
