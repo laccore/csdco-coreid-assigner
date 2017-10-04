@@ -139,12 +139,22 @@ if canRun:
 		else:
 			unmatchedData.append(row)
 
+	# Create a set to check unique cores names
+	namedSet = set()
+
 	# Export matched data
 	with open(matchedFileName, 'w') as saveFile:
 		del matchedData[0][-1] # Delete the Part_Section column header
 		filewriter = csv.writer(saveFile, delimiter=',')
 		for row in matchedData:
+			namedSet.add(row[2])
+
 			filewriter.writerow(row)
+
+	# Cleanup
+	namedSet.remove('')
+	namedSet.remove('Section')
+
 
 	# Export unmatched data
 	if len(unmatchedData) > startRow:
@@ -155,5 +165,14 @@ if canRun:
 
 	stop = timeit.default_timer()
 
-	print('Completed in',round((stop - start),2),'seconds.')
+	if (len(namedSet) < len(sectionDict)):
+		countDiff = len(sectionDict) - len(namedSet)
+		err = '\nWARNING: Not all cores in ' + coreList + ' were used. '
+		err = err + 'The following ' + str(countDiff) + ' core ' + ('names were' if countDiff != 1 else 'name was') + ' not used:'
+		print(err)
+		for v in sectionDict.values():
+			if (v not in namedSet):
+				print(v)
+
+	print('\nCompleted in',round((stop - start),2),'seconds.')
 	print(len(matchedData)-startRow,'rows had section names assigned.',('There were no unmatched rows.' if len(unmatchedData) == startRow else 'There were ' + str(len(unmatchedData)-2) + ' unmatched rows.'))
