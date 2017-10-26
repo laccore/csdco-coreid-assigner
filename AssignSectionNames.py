@@ -55,7 +55,7 @@ elif 'Section' in msclData[0]:
 	sectionColumn = msclData[0].index('Section')
 else:
 	canRun = False
-	print('ERROR: Cannot find section column. Please change section number column name to \'SECT NUM\' or \'Section\'.')
+	print('ERROR: Cannot find section column. Please change section number column name to \'SECT NUM\' or \'Section\'.\n')
 
 # handle failure better
 if 'Section Depth' in msclData[0]:
@@ -68,7 +68,7 @@ elif 'SECT DEPTH' in msclData[0]:
 	sectionDepth = msclData[0].index('SECT DEPTH')
 else:
 	canRun = False
-	print('ERROR: Cannot find section depth column. Please change section number column name to \'SECT DEPTH\' or \'Section Depth\'.')
+	print('ERROR: Cannot find section depth column. Please change section number column name to \'SECT DEPTH\' or \'Section Depth\'.\n')
 
 # Build the section list
 if len(sys.argv) > 2:
@@ -77,7 +77,7 @@ elif os.path.isfile('coreList.csv'):
 	coreList = 'coreList.csv'
 else:
 	canRun = False
-	print('ERROR: core list was not specified and coreList.csv does not exist. Please specify the core listing file as the last argument or rename the core list file to corelist.csv.')
+	print('ERROR: core list was not specified and coreList.csv does not exist. Please specify the core listing file as the last argument or rename the core list file to corelist.csv.\n')
 
 if canRun:
 	with open(coreList, 'r') as sectionListFile:
@@ -153,10 +153,11 @@ if canRun:
 	namedSet.remove('')
 	namedSet.remove('Section')
 
-	for v in namedSet:
-		clc = list(sectionDict.values()).count(v)
-		if clc > 1:
-			print('WARNING: Core ' + v + ' appears in ' + coreList + ' ' + str(clc) + ' times.')
+	coreNameList = list(sectionDict.values())
+	for cn in list(set(coreNameList)):
+		cnc = coreNameList.count(cn)
+		if cnc > 1:
+			print('WARNING: Core ' + cn + ' appears in ' + coreList + ' ' + str(cnc) + ' times.')
 
 
 	# Export unmatched data
@@ -173,9 +174,10 @@ if canRun:
 		err = '\nWARNING: Not all cores in ' + coreList + ' were used. '
 		err = err + 'The following ' + str(countDiff) + ' core ' + ('names were' if countDiff != 1 else 'name was') + ' not used:'
 		print(err)
-		for v in sectionDict.values():
+		for v in list(set(sectionDict.values())):
 			if (v not in namedSet):
 				print(v)
 
 	print('\nCompleted in',round((stop - start),2),'seconds.')
-	print(len(matchedData)-startRow,'rows had section names assigned.',('There were no unmatched rows.' if len(unmatchedData) == startRow else 'There were ' + str(len(unmatchedData)-2) + ' unmatched rows.'))
+	print(len(matchedData)-startRow,'rows had section names assigned (' + matchedFileName + ').')
+	print('There were no unmatched rows.' if len(unmatchedData) == startRow else 'There were ' + str(len(unmatchedData)-2) + ' unmatched rows (' + unmatchedFileName + ').')
