@@ -47,11 +47,11 @@ startRow = 2
 # handle failure better
 if 'SECT NUM' in msclData[0]:
 	if debug:
-		print('Section column found in column {0}'.format(msclData[0].index('SECT NUM')+1))
+		print('Section column found in column {0}.'.format(msclData[0].index('SECT NUM')+1))
 	sectionColumn = msclData[0].index('SECT NUM')
 elif 'Section' in msclData[0]:
 	if debug:
-		print('Section column found in column {0}'.format(msclData[0].index('Section')+1))
+		print('Section column found in column {0}.'.format(msclData[0].index('Section')+1))
 	sectionColumn = msclData[0].index('Section')
 else:
 	canRun = False
@@ -60,11 +60,11 @@ else:
 # handle failure better
 if 'Section Depth' in msclData[0]:
 	if debug:
-		print('Section depth found in column {0}'.format(msclData[0].index('Section Depth')+1))
+		print('Section depth found in column {0}.\n'.format(msclData[0].index('Section Depth')+1))
 	sectionDepth = msclData[0].index('Section Depth')
 elif 'SECT DEPTH' in msclData[0]:
 	if debug:
-		print('Section depth found in column {0}'.format(msclData[0].index('SECT DEPTH')+1))
+		print('Section depth found in column {0}.\n'.format(msclData[0].index('SECT DEPTH')+1))
 	sectionDepth = msclData[0].index('SECT DEPTH')
 else:
 	canRun = False
@@ -100,8 +100,6 @@ if canRun:
 
 	# Build a dictionary for lookup from the list
 	sectionDict = {section[2]: section[1] for section in sectionList}
-
-	# print(sectionDict)
 
 	# Add the part_section notation field to the mscl data
 	nSections = 1
@@ -155,6 +153,11 @@ if canRun:
 	namedSet.remove('')
 	namedSet.remove('Section')
 
+	for v in namedSet:
+		clc = list(sectionDict.values()).count(v)
+		if clc > 1:
+			print('WARNING: Core ' + v + ' appears in ' + coreList + ' ' + str(clc) + ' times.')
+
 
 	# Export unmatched data
 	if len(unmatchedData) > startRow:
@@ -165,8 +168,8 @@ if canRun:
 
 	stop = timeit.default_timer()
 
-	if (len(namedSet) < len(sectionDict)):
-		countDiff = len(sectionDict) - len(namedSet)
+	countDiff = len(set(sectionDict.values())) - len(namedSet)
+	if (countDiff > 0):
 		err = '\nWARNING: Not all cores in ' + coreList + ' were used. '
 		err = err + 'The following ' + str(countDiff) + ' core ' + ('names were' if countDiff != 1 else 'name was') + ' not used:'
 		print(err)
