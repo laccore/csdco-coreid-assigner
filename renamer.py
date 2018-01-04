@@ -39,7 +39,9 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
                     row[0] = row[0].replace('\ufeff','')
                 msclData.append(row)
     except OSError as err:
-        print("OS error: {0}".format(err))
+        print('OS error: {0}'.format(err))
+        print('Stopping exection.')
+        exit(-1)
 
     # Ideally with a GUI these would be fields that could be entered
     startRow = 2
@@ -80,7 +82,9 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
                         print('BOM found and removed.')
                 sectionList.append([int(row[0]),row[1]])
     except OSError as err:
-        print("OS error: {0}".format(err))
+        print('OS error: {0}'.format(err))
+        print('Stopping execution.')
+        exit(-1)
 
     # Add the filepart_section notation field to the section log
     nSections = 1
