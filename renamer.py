@@ -16,7 +16,6 @@ Examples:
 
 import sys
 import os.path
-import csv
 import timeit
 
 version = '0.1.0'
@@ -32,16 +31,14 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
     sectionList = []
 
     try:
-        with open(rawFileName, 'r') as rawDataFile:
-            fileReader = csv.reader(rawDataFile)
-            for row in fileReader:
-                if '\ufeff' in row[0]:
-                    row[0] = row[0].replace('\ufeff','')
-                msclData.append(row)
+        f = open(rawFileName, 'r')
+        msclData = [r.split(',') for r in f.read().splitlines()]
     except OSError as err:
         print('OS error: {0}'.format(err))
         print('Stopping exection.')
         exit(-1)
+    finally:
+        f.close()
 
     # Ideally with a GUI these would be fields that could be entered
     startRow = 2
@@ -73,18 +70,15 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
         exit(-1)
 
     try:
-        with open(coreList, 'r') as sectionListFile:
-            fileReader = csv.reader(sectionListFile)
-            for row in fileReader:
-                if '\ufeff' in row[0]:
-                    row[0] = row[0].replace('\ufeff','')
-                    if debug:
-                        print('BOM found and removed.')
-                sectionList.append([int(row[0]),row[1]])
+        f = open(coreList, 'r')
+        rows = f.read().splitlines()
+        sectionList = [[int(a), b] for a, b in [r.split(',') for r in rows]]
     except OSError as err:
         print('OS error: {0}'.format(err))
         print('Stopping execution.')
         exit(-1)
+    finally:
+        f.close()
 
     # Add the filepart_section notation field to the section log
     nSections = 1
@@ -134,18 +128,28 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
             matchedData.append(row)
         else:
             unmatchedData.append(row)
+    
+    del matchedData[0][-1] # Delete the Part_Section column header
+    del matchedData[1][-1]  
 
     # Create a set to check unique cores names
     namedSet = set()
 
-    # Export matched data
-    with open(matchedFileName, 'w') as saveFile:
-        # del matchedData[0][-1] # Delete the Part_Section column header
-        filewriter = csv.writer(saveFile, delimiter=',')
-        for row in matchedData:
-            namedSet.add(row[sectionColumn])
+    for row in matchedData:
+        namedSet.add(row[sectionColumn])
 
-            filewriter.writerow(row)
+    # Export matched data
+    try:
+        f = open(matchedFileName, 'w')
+        for r in matchedData:
+            f.write(','.join(r)+'\n')
+    except OSError as err:
+        print('OS error: {0}'.format(err))
+        print('Stopping execution.')
+        exit(-1)
+    finally:
+        f.close()
+
 
     # Cleanup
     namedSet.remove('')
@@ -160,10 +164,17 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
 
     # Export unmatched data
     if len(unmatchedData) > startRow:
-        with open(unmatchedFileName, 'w') as saveFile:
-            filewriter = csv.writer(saveFile, delimiter=',')
-            for row in unmatchedData:
-                filewriter.writerow(row)
+        try:
+            f = open(unmatchedFileName, 'w')
+            for r in unmatchedData:
+                f.write(','.join(r)+'\n')
+        except OSError as err:
+            print('OS error: {0}'.format(err))
+            print('Stopping execution.')
+            exit(-1)
+        finally:
+            f.close()
+
 
     stop = timeit.default_timer()
 
