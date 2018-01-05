@@ -20,14 +20,10 @@ import os.path
 import timeit
 
 version = '0.2.0'
-debug = 0
 
 start = timeit.default_timer()
 
-
 def applyNames(rawFileName, matchedFileName, unmatchedFileName):
-    canRun = True
-    
     msclData = []
     sectionList = []
 
@@ -39,30 +35,23 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
 
     # handle failure better
     if 'SECT NUM' in msclData[0]:
-        if debug:
-            print('Section column found in column {0}.'.format(msclData[0].index('SECT NUM')+1))
         sectionColumn = msclData[0].index('SECT NUM')
     elif 'Section' in msclData[0]:
-        if debug:
-            print('Section column found in column {0}.'.format(msclData[0].index('Section')+1))
         sectionColumn = msclData[0].index('Section')
     else:
-        print('ERROR: Cannot find section column. Please change section number column name to \'SECT NUM\' or \'Section\'.\n')
+        print('ERROR: Cannot find section number column. Please change section number column name to \'Section\' or \'SECT NUM\'.')
         exit(-1)
 
     # handle failure better
     if 'Section Depth' in msclData[0]:
-        if debug:
-            print('Section depth found in column {0}.\n'.format(msclData[0].index('Section Depth')+1))
         sectionDepth = msclData[0].index('Section Depth')
     elif 'SECT DEPTH' in msclData[0]:
-        if debug:
-            print('Section depth found in column {0}.\n'.format(msclData[0].index('SECT DEPTH')+1))
         sectionDepth = msclData[0].index('SECT DEPTH')
     else:
-        print('ERROR: Cannot find section depth column. Please change section number column name to \'SECT DEPTH\' or \'Section Depth\'.\n')
+        print('ERROR: Cannot find section depth column. Please change section depth column name to \'Section Depth\' or \'SECT DEPTH\'.')
         exit(-1)
 
+    # Build the section list
     with open(coreList, 'r') as f:
         rows = f.read().splitlines()
         sectionList = [[int(a), b] for a, b in [r.split(',') for r in rows]]
@@ -158,11 +147,13 @@ def applyNames(rawFileName, matchedFileName, unmatchedFileName):
 
 
 if __name__ == '__main__':
+    # If zero or more than 2 parameters are passed, print correct usage and exit.
     if len(sys.argv) > 3 or len(sys.argv) == 1:
-        print('Usage: python renamer.py <unnamed MSCL file.csv> (<core list.csv>)')
+        print('Usage: python renamer.py <MSCL file.csv> (<core list.csv>)')
         exit(-1)
     
     # Find the core list
+    # If core list not specified and corelist.csv doesn't exist, tell user it's needed and what it looks like
     if len(sys.argv) > 2:
         coreList = sys.argv[2]
     elif os.path.isfile('corelist.csv'):
