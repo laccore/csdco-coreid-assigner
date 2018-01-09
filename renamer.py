@@ -26,7 +26,7 @@ start_time = timeit.default_timer()
 
 def apply_names(input_filename, matched_filename, unmatched_filename):
     mscl_data = []
-    sectionList = []
+    section_list = []
 
     with open(input_filename, 'r') as f:
         mscl_data = [r.split(',') for r in f.read().splitlines()]
@@ -55,20 +55,20 @@ def apply_names(input_filename, matched_filename, unmatched_filename):
     # Build the section list
     with open(core_list_filename, 'r') as f:
         rows = f.read().splitlines()
-        sectionList = [[int(a), b] for a, b in [r.split(',') for r in rows]]
+        section_list = [[int(a), b] for a, b in [r.split(',') for r in rows]]
 
     # Add the filepart_section notation field to the section log
     nSections = 1
-    for i, row in enumerate(sectionList):
+    for i, row in enumerate(section_list):
         if i == 0:
-            row.append('1_' + str(sectionList[i][0]))
+            row.append('1_' + str(section_list[i][0]))
         elif i > 0:
-            if sectionList[i][0] <= sectionList[i-1][0]:
+            if section_list[i][0] <= section_list[i-1][0]:
                 nSections += 1
-            row.append(str(nSections) + '_' + str(sectionList[i][0]))
+            row.append(str(nSections) + '_' + str(section_list[i][0]))
 
     # Build a dictionary for lookup from the list
-    sectionDict = {section[2]: section[1] for section in sectionList}
+    sectionDict = {section[2]: section[1] for section in section_list}
 
     # Add the part_section notation field to the mscl data
     nSections = 1
