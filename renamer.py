@@ -22,33 +22,20 @@ version = '0.2.0'
 
 def apply_names(input_filename, core_list_filename, **kwargs):
     start_time = timeit.default_timer()
+
     if 'kwargs' in kwargs:
         kwargs = kwargs['kwargs']
+        if kwargs['verbose']:
+            print('kwargs dict passed as dict value.')
 
     ### Pull out all the options parameters
-    if 'startrow' in kwargs:
-        start_row = kwargs['startrow']
-    else:
-        start_row = 2
-
-    if 'headerrow' in kwargs:
-        header_row = kwargs['headerrow']
-    else:
-        header_row = 0
-
-    if 'unitsrow' in kwargs:
-        units_row = kwargs['unitsrow']
-    else:
-        units_row = 1
-    
-    if kwargs['verbose']:
-        verbose = True
-    else:
-        verbose = False
+    header_row = kwargs['headerrow'] if 'headerrow' in kwargs else 0
+    units_row = kwargs['unitsrow'] if 'unitsrow' in kwargs else 1
+    start_row = kwargs['startrow'] if 'startrow' in kwargs else 2
+    verbose = kwargs['verbose']
     
     if verbose:
-        print(kwargs)
-
+        print('kwargs:',kwargs)
 
     ### Import the data
     mscl_data = []
@@ -130,49 +117,39 @@ def apply_names(input_filename, core_list_filename, **kwargs):
                 print('Ignored row {0} (not header or units row and before start row):\n{1}'.format(i,row))
 
 
-    # These will be the lists we export from
+    ### Build the export lists
     matched_data = []
     unmatched_data = []
 
-    # Add header and unit rows
-    matched_data.append(mscl_data[header_row][:-1])
-    matched_data.append(mscl_data[units_row][:-1])
-    unmatched_data.append(mscl_data[header_row])
-    unmatched_data.append(mscl_data[units_row])
-
-    # Build the export lists, replacing the section# with the name and removing
-    # the extra part_section column if the row was matched
+    # Build the export lists, replacing the geotek file section number with the
+    # coreID and removing the extra part_section column if the row was matched.
     for row in mscl_data[start_row:]:
-        # Does the part_section key exist in the dict?
         if row[-1] in sectionDict.keys():
             row[section_column] = sectionDict[row[-1]]
             matched_data.append(row[:-1])
         else:
             unmatched_data.append(row)
     
+    # Build export names
+    matched_filename = kwargs['outputfilename'] if 'outputfilename' in kwargs else input_filename.split('.')[0] + '_coreID.csv'
+    unmatched_filename = kwargs['unmatchedfilename'] if 'unmatchedfilename' in kwargs else input_filename.split('.')[0] + '_unmatched.csv'
 
-    if 'outputfilename' in kwargs:
-        matched_filename = kwargs['outputfilename']
-    else:
-        matched_filename = input_filename[:len(input_filename)-12] + '.csv' if ('unnamed' in input_filename) else input_filename[:len(input_filename)-4] + '_sectionNames.csv'
-    
-    if 'unmatchedfilename' in kwargs:
-        unmatched_filename = kwargs['unmatchedfilename']
-    else:
-        unmatched_filename = (input_filename[:len(input_filename)-12] if ('unnamed' in input_filename) else input_filename[:len(input_filename)-4]) + '_UNMATCHED.csv'
-
-    # Export matched data
+    ### Export matched data
     with open(matched_filename, 'w', encoding='utf-8-sig') as f:
+        f.write(','.join(mscl_data[header_row][:-1])+'\n')
+        f.write(','.join(mscl_data[units_row][:-1])+'\n')
         for r in matched_data:
             f.write(','.join(r)+'\n')
 
-    # Export unmatched data
-    if len(unmatched_data) > start_row:
+    ### Export unmatched data
+    if len(unmatched_data) != 0:
         with open(unmatched_filename, 'w', encoding='utf-8-sig') as f:
+            f.write(','.join(mscl_data[header_row])+'\n')
+            f.write(','.join(mscl_data[units_row])+'\n')
             for r in unmatched_data:
                 f.write(','.join(r)+'\n')
     
-    # Reporting stuff
+    ### Reporting stuff
     # Create a set to check unique cores names
     named_set = set()
 
@@ -184,7 +161,6 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         core_name_count = core_name_list.count(core_name)
         if core_name_count > 1:
             print('WARNING: Core ' + core_name + ' appears in ' + core_list_filename + ' ' + str(core_name_count) + ' times.')
-
 
     count_diff = len(set(sectionDict.values())) - len(named_set)
     if (count_diff > 0):
