@@ -174,8 +174,8 @@ def apply_names(input_filename, core_list_filename, **kwargs):
 
     end_time = timeit.default_timer()
 
-    print(len(matched_data)-2,'rows had section names assigned (' + matched_filename + ').')
-    print('There were no unmatched rows.' if len(unmatched_data) == start_row else 'There were ' + str(len(unmatched_data)-2) + ' unmatched rows (' + unmatched_filename + ').')
+    print(len(matched_data),'rows had section names assigned (' + matched_filename + ').')
+    print('There were no unmatched rows.' if len(unmatched_data) == start_row else 'There were ' + str(len(unmatched_data)) + ' unmatched rows (' + unmatched_filename + ').')
     if verbose:
         print('Completed in',round((end_time - start_time),2),'seconds.')    
 
