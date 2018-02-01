@@ -1,9 +1,10 @@
 '''
-Created on Jan 9, 2018
+Created on Feb 1, 2018
 
 @author: skydeo
 
 Qt GUI main for renamer.py
+Heavily borrowed from Brian Grivna's work on the rgbaggregator at https://github.com/sorghumking/rgbaggregator
 '''
 
 import os
