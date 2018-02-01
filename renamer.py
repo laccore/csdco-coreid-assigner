@@ -25,14 +25,15 @@ def apply_names(input_filename, core_list_filename, **kwargs):
 
     if 'kwargs' in kwargs:
         kwargs = kwargs['kwargs']
-        if kwargs['verbose']:
-            print('kwargs dict passed as dict value.')
+        if 'verbose' in kwargs:
+            if kwargs['verbose']:
+                print('kwargs dict passed as dict value.')
 
     ### Pull out all the options parameters
     header_row = kwargs['headerrow'] if 'headerrow' in kwargs else 0
     units_row = kwargs['unitsrow'] if 'unitsrow' in kwargs else 1
     start_row = kwargs['startrow'] if 'startrow' in kwargs else 2
-    verbose = kwargs['verbose']
+    verbose = kwargs['verbose'] if 'verbose' in kwargs else False
     
     if verbose:
         print('kwargs:',kwargs)
