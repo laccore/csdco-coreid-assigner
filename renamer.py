@@ -51,12 +51,12 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         if verbose:
             print('Section column passed at command line:',section_column)
     else:
-        if 'SECT NUM' in mscl_data[0]:
-            section_column = mscl_data[0].index('SECT NUM')
+        if 'SECT NUM' in mscl_data[header_row]:
+            section_column = mscl_data[header_row].index('SECT NUM')
             if verbose:
                 print('Section number column found in file with column name \'SECT NUM\':',section_column)
-        elif 'Section' in mscl_data[0]:
-            section_column = mscl_data[0].index('Section')
+        elif 'Section' in mscl_data[header_row]:
+            section_column = mscl_data[header_row].index('Section')
             if verbose:
                 print('Section number column found in file with column name \'Section\':',section_column)
         else:
@@ -68,12 +68,12 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         if verbose:
             print('Section depth column passed at command line:',section_depth_column)
     else:
-        if 'Section Depth' in mscl_data[0]:
-            section_depth_column = mscl_data[0].index('Section Depth')
+        if 'Section Depth' in mscl_data[header_row]:
+            section_depth_column = mscl_data[header_row].index('Section Depth')
             if verbose:
                 print('Section depth column found in file with column name \'Section Depth\':',section_depth_column)
-        elif 'SECT DEPTH' in mscl_data[0]:
-            section_depth_column = mscl_data[0].index('SECT DEPTH')
+        elif 'SECT DEPTH' in mscl_data[header_row]:
+            section_depth_column = mscl_data[header_row].index('SECT DEPTH')
             if verbose:
                 print('Section depth column found in file with column name \'SECT DEPTH\':',section_depth_column)
         else:
@@ -130,7 +130,7 @@ def apply_names(input_filename, core_list_filename, **kwargs):
             matched_data.append(row[:-1])
         else:
             unmatched_data.append(row)
-    
+
     # Build export names
     matched_filename = kwargs['outputfilename'] if 'outputfilename' in kwargs else input_filename.split('.')[0] + '_coreID.csv'
     unmatched_filename = kwargs['unmatchedfilename'] if 'unmatchedfilename' in kwargs else input_filename.split('.')[0] + '_unmatched.csv'
@@ -141,6 +141,7 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         f.write(','.join(mscl_data[units_row][:-1])+'\n')
         for r in matched_data:
             f.write(','.join(r)+'\n')
+        f.write('\n')
 
     ### Export unmatched data
     if len(unmatched_data) != 0:
@@ -149,7 +150,8 @@ def apply_names(input_filename, core_list_filename, **kwargs):
             f.write(','.join(mscl_data[units_row])+'\n')
             for r in unmatched_data:
                 f.write(','.join(r)+'\n')
-    
+            f.write('\n')
+
     ### Reporting stuff
     # Create a set to check unique cores names
     named_set = set()
@@ -158,16 +160,16 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         named_set.add(row[section_column])
 
     core_name_list = list(sectionDict.values())
-    for core_name in list(set(core_name_list)):
+    for core_name in sorted(list(set(core_name_list))):
         core_name_count = core_name_list.count(core_name)
         if core_name_count > 1:
             print('WARNING: Core ' + core_name + ' appears in ' + core_list_filename + ' ' + str(core_name_count) + ' times.')
 
     count_diff = len(set(sectionDict.values())) - len(named_set)
     if (count_diff > 0):
-        err = 'WARNING: Not all cores in ' + core_list_filename + ' were used.\n'
+        err = '\nWARNING: Not all cores in ' + core_list_filename + ' were used.\n'
         err += 'The following ' + str(count_diff) + ' core ' + ('names were' if count_diff != 1 else 'name was') + ' not used:\n'
-        for v in list(set(sectionDict.values())):
+        for v in sorted(list(set(sectionDict.values()))):
             if (v not in named_set):
                 err += v + '\n'
         print(err)
@@ -176,13 +178,13 @@ def apply_names(input_filename, core_list_filename, **kwargs):
     end_time = timeit.default_timer()
 
     print(len(matched_data),'rows had section names assigned (' + matched_filename + ').')
-    print('There were no unmatched rows.' if len(unmatched_data) == start_row else 'There were ' + str(len(unmatched_data)) + ' unmatched rows (' + unmatched_filename + ').')
+    print('There were no unmatched rows.' if len(unmatched_data) == 0 else 'There were ' + str(len(unmatched_data)) + ' unmatched rows (' + unmatched_filename + ').')
     if verbose:
         print('Completed in',round((end_time - start_time),2),'seconds.')    
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Apply coreIDs to the output from Geotek MSCL software.')
+    parser = argparse.ArgumentParser(description='Apply CoreIDs to the output from Geotek MSCL software.')
     parser.add_argument('input_filename', type=str, help='Name of input file.')
     parser.add_argument('-c', '--corelist', type=str, help='Name of the core list file.')
     parser.add_argument('-s', '--sectioncolumn', type=int, help='Column number the section numbers are in (count starts at 0).')
