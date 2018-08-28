@@ -132,7 +132,12 @@ def apply_names(input_filename, core_list_filename, **kwargs):
             unmatched_data.append(row)
 
     # Build export names
-    matched_filename = kwargs['outputfilename'] if 'outputfilename' in kwargs else input_filename.split('.')[0] + '_coreID.csv'
+    if 'outputfilename' in kwargs:
+        matched_filename = kwargs['outputfilename']
+    elif 'unnamed' in input_filename:
+        matched_filename = input_filename.replace('_unnamed','')
+    else:
+        matched_filename = input_filename.split('.')[0] + '_coreID.csv'
     unmatched_filename = kwargs['unmatchedfilename'] if 'unmatchedfilename' in kwargs else input_filename.split('.')[0] + '_unmatched.csv'
 
     ### Export matched data
@@ -200,8 +205,8 @@ if __name__ == '__main__':
 
     if args.corelist:
         core_list_filename = args.corelist
-    elif os.path.isfile('corelist.csv'):
-        core_list_filename = 'corelist.csv'
+    elif os.path.isfile('/'.join(args.input_filename.split('/')[:-1])+'/corelist.csv'):
+        core_list_filename = '/'.join(args.input_filename.split('/')[:-1])+'/corelist.csv'
     else:
         print('A core list file needs to be specified (e.g. python renamer.py -c PRJ_core_list.csv).')
         print('Alternatively, a file named corelist.csv must exist in the same directory.')
