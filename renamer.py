@@ -54,13 +54,17 @@ def apply_names(input_filename, core_list_filename, **kwargs):
         if 'SECT NUM' in mscl_data[header_row]:
             section_column = mscl_data[header_row].index('SECT NUM')
             if verbose:
-                print('Section number column found in file with column name \'SECT NUM\':',section_column)
+                print("Section number column found in file with column name 'SECT NUM':", section_column)
         elif 'Section' in mscl_data[header_row]:
             section_column = mscl_data[header_row].index('Section')
             if verbose:
-                print('Section number column found in file with column name \'Section\':',section_column)
+                print("Section number column found in file with column name 'Section':", section_column)
+        elif 'SectionID' in mscl_data[header_row]:
+            section_column = mscl_data[header_row].index('SectionID')
+            if verbose:
+                print("Section number column found in file with column name 'SectionID':", section_column)
         else:
-            print('ERROR: Cannot find section number column. Please change section number column name to \'Section\' or \'SECT NUM\'.')
+            print("ERROR: Cannot find section number column. Please change section number column name to 'Section' or 'SECT NUM'.")
             exit(1)
 
     if 'depthcolumn' in kwargs:
