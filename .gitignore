@@ -1,2 +1,4 @@
 __pycache__/
 demo_data/
+build/
+dist/
